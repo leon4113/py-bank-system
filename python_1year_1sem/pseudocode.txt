@@ -1,0 +1,1073 @@
+#Leonardo
+
+#TP064705
+
+
+
+
+
+from datetime IMPORT datetime as dat
+
+IMPORT os
+
+
+
+SET # to get now time TO OUTPUT(dat.now().time())
+
+SET # to get now date TO OUTPUT(dat.now().date())
+
+
+
+#generates admin and customer id number
+
+DEFINE FUNCTION generate_id(type):
+
+    with open("id.txt", "r") as f:
+
+        SET record TO f.readline()
+
+        SET reclist TO record.strip().split(":")
+
+        IF type EQUALS "admin":
+
+            SET id TO "admn"
+
+            SET oldrecord TO reclist[0][4:]
+
+        ELSEIF type EQUALS "customer":
+
+            SET id TO "cust"
+
+            SET oldrecord TO reclist[1][4:]
+
+	ENDIF
+
+        SET nextrecord TO int(oldrecord) + 1
+
+    IF len(str(nextrecord)) EQUALS 1:
+
+        SET newid TO "0" * 3 + str(nextrecord)
+
+    ELSEIF len(str(nextrecord)) EQUALS 2:
+
+        SET newid TO "0" * 2 + str(nextrecord)
+
+    ELSEIF len(str(nextrecord)) EQUALS 3:
+
+        SET newid TO "0" + str(nextrecord)
+
+    ELSEIF len(str(nextrecord)) EQUALS 4:
+
+        SET newid TO str(nextrecord)
+
+    ENDIF
+
+    SET final_id TO id + newid
+
+    IF type EQUALS "admin":
+
+        SET reclist[0] TO final_id
+
+    ELSEIF type EQUALS "customer":
+
+        SET reclist[1] TO final_id
+
+    ENDIF
+
+    SET rec TO ":".join(reclist)
+
+    with open("id.txt", "w") as f:
+
+        f.write(rec)
+
+    RETURN final_id
+
+
+
+#display existing account IN data file
+
+DEFINE FUNCTION display_account():
+
+    with open("account.txt", "r")as f:
+
+        OUTPUT("-" * 80)
+
+        OUTPUT("User ID: ".center(20) + "| User password: ".center(20) + "| User name: ".center(16) + "| acc type: ".center(23) + "| date created: \n")
+
+        FOR i IN f:
+
+            SET record TO i.strip().split(",")
+
+            IF record[3] EQUALS "1":
+
+                SET record[3] TO "superuser"
+
+            ELSEIF record[3] EQUALS "2":
+
+                SET record[3] TO "admin"
+
+            ELSEIF record[3] EQUALS "3":
+
+                SET record[3] TO "customer"
+
+	    ENDIF
+
+            OUTPUT(record[0].center(20) , "|" , record[1].center(17) , "|" , record[2].center(18) , "|" , record[3].center(14) , "|" , record[4].center(15))
+
+	ENDLOOP
+
+#func to creates a new admin account
+
+DEFINE FUNCTION add_admin():
+
+    SET user_id TO generate_id("admin")
+
+    OUTPUT("User ID :", user_id)
+
+    WHILE True:
+
+        SET userpass TO INPUT("Create admin password (min 6 characters): ")
+
+        IF len(userpass) >= 6:
+
+            break
+    ENDLOOP
+
+    OUTPUT("User Password:",userpass)
+
+    SET usrname TO INPUT("Please enter admin name: ")
+
+    OUTPUT("Admin name:", usrname)
+
+    OUTPUT("admin account created")
+
+    SET acctype TO "2"
+
+    with open("account.txt","a") as fh:
+
+        SET rec TO "\n" + user_id + "," + userpass + "," + usrname + "," + acctype + "," + dat.now().date().strftime("%Y-%m-%d")
+
+        fh.write(rec)
+
+
+
+#login FOR all accounts
+
+DEFINE FUNCTION login():
+
+    OUTPUT("*" * 20 + " Banking System " + "*" * 20 )
+
+    OUTPUT("welcome, \u0001\u0001\u0001")
+
+    OUTPUT("-" * 80)
+
+    OUTPUT("Enter 'q' to exit from system")
+
+    SET user_id TO INPUT("Enter your name: ")
+
+    IF user_id EQUALS "q" or user_id EQUALS "Q":
+
+        quit()
+
+    ENDIF
+
+    SET user_password TO INPUT("Enter your password: ")
+
+    with open("account.txt", "r") as f:
+
+        SET record TO "no"
+
+        FOR i IN f:
+
+            SET record_list TO i.strip().split(",")
+
+            IF record_list[2] EQUALS user_id and record_list[1] EQUALS user_password:
+
+                SET record TO record_list
+
+                break
+
+	ENDLOOP
+
+        IF record EQUALS "no":
+
+            OUTPUT("Incorrect name or password!")
+
+        ELSE:
+
+            OUTPUT("successful login!!!")
+	ENDIF
+
+    OUTPUT("-" * 80)
+
+    RETURN record
+
+
+
+#func to creates a new customer account
+
+DEFINE FUNCTION add_customer():
+
+    SET cust_id TO generate_id("customer")
+
+    OUTPUT("User ID: ", cust_id)
+
+    WHILE True:
+
+        SET password TO INPUT("Create customer password (min 6 characters): ")
+
+        IF len(password) >= 6:
+
+            break
+
+    ENDLOOP
+
+    OUTPUT("User password: ", password)
+
+    SET cust_name TO INPUT("please enter customer name: ")
+
+    OUTPUT("user name: ", cust_name)
+
+    OUTPUT("C FOR current, S FOR saving")
+
+    WHILE True:
+
+        SET acc_type TO INPUT("customer account type: ")
+
+        IF acc_type EQUALS "c" or acc_type EQUALS "C":
+
+            break
+
+        ELSEIF acc_type EQUALS "s" or acc_type EQUALS "S":
+
+            break
+
+        ELSE:
+
+            OUTPUT("is it current acc or saving acc??")
+	
+	ENDIF
+
+    ENDLOOP
+
+    IF acc_type EQUALS "c" or acc_type EQUALS "C":
+
+        WHILE True:
+
+            TRY:
+
+                SET balance TO float(INPUT("inital balance (min 500 RM): "))
+
+                IF balance >999:
+
+                    OUTPUT("wow!!! rich client !!! \U0001F600\U0001F600\U0001F600")
+                    break
+
+                ELSEIF balance >= 500:
+
+                    break
+
+                ELSE:
+
+                    OUTPUT("initial balance must be at least 500 RM")
+
+		ENDIF
+
+            EXCEPT:
+
+                OUTPUT("Invalid INPUT")
+
+	ENDLOOP
+
+    ELSEIF acc_type EQUALS "s" or acc_type EQUALS "S":
+
+        WHILE True:
+
+            TRY:
+
+                SET balance TO float(INPUT("inital balance (min 100 RM): "))
+
+                IF balance >999:
+
+                    OUTPUT("wow!!! rich client !!! \U0001F600\U0001F600\U0001F600")
+
+                    break
+
+                ELSEIF balance >= 100:
+
+                    break
+
+                ELSE:
+
+                    OUTPUT("initial balance must be at least 100 RM")
+
+		ENDIF
+
+	ENDLOOP
+
+            EXCEPT:
+
+                OUTPUT("Invalid INPUT")
+    ENDIF
+
+    with open("customer.txt", "a") as f:
+
+        SET rec TO "\n" + cust_id + "," + cust_name + "," + acc_type + "," + str(balance) + "," + str(dat.now().date())
+
+        f.write(rec)
+
+    with open("history.txt", "a") as x:
+
+        SET rec TO "\n" + cust_id + "," + cust_name + "," + str(balance) + ", +" + str(balance) + "," + str(dat.now().date()) + "," + str(dat.now().time().strftime("%H:%M:%S"))
+
+        x.write(rec)
+
+    OUTPUT("Customer account created")
+
+    SET accounttype TO "3"
+
+    with open("account.txt", "a") as f:
+
+        SET rec TO "\n" + cust_id+","+password+","+cust_name+","+accounttype +","+ str(dat.now().date())
+
+        f.write(rec)
+
+
+
+#to change account password
+
+DEFINE FUNCTION change_password(details):
+
+    SET all TO []
+
+    with open("account.txt", "r") as f:
+
+        FOR i IN f:
+
+            SET allist TO i.strip().split(",")
+
+            all.append(allist)
+
+	ENDLOOP
+
+    WHILE True:
+
+        SET new_password TO INPUT("Please enter your new password (min 6 characters): ")
+
+        IF len(new_password) >= 6:
+
+            OUTPUT(f"customer id: {details[0]}")
+
+            OUTPUT("password changed into: " + new_password + "!!!")
+
+            break
+
+	ENDIF
+
+    ENDLOOP
+
+    SET cnt TO -1
+
+    SET flg TO len(all)
+
+    FOR i IN range(0, flg):
+
+        IF details[0] EQUALS all[i][0]:
+
+            SET cnt TO i
+
+            break
+
+    ENDLOOP
+
+    SET all[cnt][1] TO new_password
+
+    with open("account.txt", "w") as f:
+
+        SET flg TO len(all)
+
+        FOR i IN range(0, flg):
+
+            SET record TO ",".join(all[i])+ "\n"
+
+            f.write(record)
+
+	ENDLOOP
+
+
+
+#for admin to change customer password
+
+DEFINE FUNCTION change_cust_password():
+
+    WHILE True:
+
+        OUTPUT("Warning!!! we will log you out IN case of invalid id!")
+
+        SET ans TO INPUT("customer id: ")
+
+        IF "cust" IN ans:
+
+            break
+
+        ELSE:
+
+            OUTPUT("please enter customer id!!!")
+
+	ENDIF
+    
+    ENDLOOP
+
+    SET all TO "no"
+
+    with open("account.txt", "r") as f:
+
+        FOR i IN f:
+
+            SET allist TO i.strip().split(",")
+
+            IF ans EQUALS allist[0]:
+
+                SET all TO allist
+
+	ENDLOOP
+
+    IF all EQUALS "no":
+
+        OUTPUT("invalid id")
+
+        OUTPUT("we will log you out now \U0001F612\U0001F612\U0001F612")
+
+        main()
+
+    ENDIF
+
+    RETURN all
+
+
+
+DEFINE FUNCTION admin_display_report():
+
+    WHILE True:
+
+        OUTPUT("Warning!!! we will log you out IN case of invalid id!")
+
+        SET ans TO INPUT("customer id: ")
+
+        IF "cust" IN ans:
+
+            break
+
+        ELSE:
+
+            OUTPUT("please enter customer id!!!")
+
+	ENDIF
+
+    ENDLOOP
+
+    SET all TO "no"
+
+    with open("account.txt", "r") as f:
+
+        FOR i IN f:
+
+            SET allist TO i.strip().split(",")
+
+            IF ans EQUALS allist[0]:
+
+                SET all TO allist
+
+	ENDLOOP
+
+    IF all EQUALS "no":
+
+        OUTPUT("invalid id")
+
+        OUTPUT("we will log you out now \U0001F612\U0001F612\U0001F612")
+
+        main()
+
+    ENDIF
+
+    RETURN all
+
+#superuser menu
+
+DEFINE FUNCTION superuser():
+
+    WHILE True:
+
+        OUTPUT("-" * 80)
+
+        OUTPUT("SUPERUSER")
+
+        OUTPUT("-" * 80)
+
+        OUTPUT("1. create admin account\n2. create customer account\n3. display all existing account\n4. logout")
+
+        WHILE True:
+
+            TRY:
+
+                SET answer TO int(INPUT("Enter choice: "))
+
+                IF answer > 4 or answer EQUALS 0:
+
+                    OUTPUT("Please enter a valid number!!!")
+
+                IF answer <= 4:
+
+                    break
+
+            EXCEPT:
+
+                OUTPUT("please enter a number!!!")
+	
+	ENDLOOP
+
+        IF answer EQUALS 4:
+
+            break
+
+        ELSEIF answer EQUALS 1:
+
+            add_admin()
+
+        ELSEIF answer EQUALS 2:
+
+            add_customer()
+
+        ELSEIF answer EQUALS 3:
+
+            display_account()
+	
+	ENDIF
+
+        OUTPUT("-" * 80)
+
+    ENDLOOP
+
+
+
+#admin menu
+
+DEFINE FUNCTION admin(record):
+
+    WHILE True:
+
+        OUTPUT("-" * 80)
+
+        OUTPUT("ADMIN")
+
+        OUTPUT("-" * 80)
+
+        OUTPUT("1. create customer account\n2. change password\n3. change customer password\n4. generates customer report\n5. logout")
+
+        WHILE True:
+
+            TRY:
+
+                SET answer TO int(INPUT("Enter choice: "))
+
+                IF answer > 5 or answer EQUALS 0:
+
+                    OUTPUT("Please enter a valid number!!!")
+
+                IF answer <= 5:
+
+                    break
+
+            EXCEPT:
+
+                OUTPUT("Please enter a number!!!")
+
+	ENDLOOP
+
+        IF answer EQUALS 5:
+
+            break
+
+        ELSEIF answer EQUALS 1:
+
+            add_customer()
+
+        ELSEIF answer EQUALS 2:
+
+            change_password(record)
+
+        ELSEIF answer EQUALS 3:
+
+            SET rec TO change_cust_password()
+
+            change_password(rec)
+
+        ELSEIF answer EQUALS 4:
+
+            SET rec TO admin_display_report()
+
+            acc_report(rec)
+
+	ENDIF
+
+        OUTPUT("-" * 80)
+
+    ENDLOOP
+
+
+
+DEFINE FUNCTION determine_customer_account(rec):
+
+    SET record TO False
+
+    with open("customer.txt", "r") as f:
+
+        FOR i IN f:
+
+            SET record_list TO i.strip().split(",")
+
+            IF rec[0] EQUALS record_list[0]:
+
+                SET record TO record_list
+
+                break
+		
+	    ENDIF
+
+	ENDLOOP
+
+    RETURN record[2]
+
+
+
+#customer menu
+
+DEFINE FUNCTION customer(record):
+
+    WHILE True:
+
+        SET acc_type TO determine_customer_account(record)
+
+        OUTPUT("-" * 80)
+
+        OUTPUT("Customer")
+
+        OUTPUT("-" * 80)
+
+        OUTPUT("1. withdraw\n2. deposit\n3. change password\n4. generates account report\n5. check balance\n6. logout")
+
+        WHILE True:
+
+            TRY:
+
+                SET answer TO int(INPUT("Enter choice: "))
+
+                IF answer > 6 or answer EQUALS 0:
+
+                    OUTPUT("Please enter a valid number!!!")
+
+                IF answer <= 6:
+
+                    break
+
+		ENDIF
+
+            EXCEPT:
+
+                OUTPUT("Please enter a number!!!")
+
+	ENDLOOP
+
+        IF answer EQUALS 6:
+
+            break
+
+        ELSEIF answer EQUALS 5:
+
+            check_balance(record)
+
+        ELSEIF answer EQUALS 3:
+
+            change_password(record)
+
+        ELSEIF answer EQUALS 4:
+
+            acc_report(record)
+
+        ELSEIF acc_type EQUALS "s" or acc_type EQUALS "S":
+
+            balance_change_saving(record, answer)
+
+        ELSEIF acc_type EQUALS "c" or acc_type EQUALS "C":
+
+            balance_change_current(record, answer)
+
+	ENDIF
+
+    ENDLOOP
+
+
+
+#for current type customer
+
+DEFINE FUNCTION balance_change_current(record, ans):
+
+    OUTPUT("-" * 80)
+
+    SET all TO []
+
+    with open("customer.txt", "r") as f:
+
+        FOR i IN f:
+
+            SET allist TO i.strip().split(",")
+
+            all.append(allist)
+
+	ENDLOOP
+
+    SET cnt TO -1
+
+    SET flg TO len(all)
+
+    FOR i IN range(0, flg):
+
+        IF record[0] EQUALS all[i][0]:
+
+            SET cnt TO i
+
+            break
+
+	ENDIF
+
+    ENDLOOP
+
+    SET balance TO float(all[cnt][3])
+
+    IF ans EQUALS 1:
+
+        WHILE True:
+
+            withdraw= float(INPUT("how much do you want to withdraw: "))
+
+            SET next_balance TO balance - withdraw
+
+            IF next_balance >= 500:
+
+                OUTPUT(f"you have withdraw {withdraw}")
+
+                with open("history.txt","a") as fh:
+
+                    SET rec TO "\n" + record[0] + "," + record[2] + "," + str(balance) + ", - " + str(withdraw)  + "," + str(dat.now().date()) + "," + str(dat.now().time().strftime("%H:%M:%S"))
+
+                    fh.write(rec)
+
+                break
+
+            ELSE:
+
+                OUTPUT("insufficient balance to withdraw")
+
+	    ENDIF
+
+	ENDLOOP
+
+    ELSEIF ans EQUALS 2:
+
+        WHILE True:
+
+            deposit= float(INPUT("how much do you want to deposit: "))
+
+            SET next_balance TO balance + deposit
+
+            IF next_balance >= 500:
+
+                OUTPUT(f"you have deposit {deposit}")
+
+                with open("history.txt","a") as fh:
+
+                    SET rec TO "\n" + record[0] + "," + record[2] + "," + str(balance) + ", + " + str(deposit)  + "," + str(dat.now().date()) + "," + str(dat.now().time().strftime("%H:%M:%S"))
+
+                    fh.write(rec)
+
+                break
+
+            ELSE:
+
+                OUTPUT("invalid INPUT")
+
+	    ENDIF
+
+	ENDLOOP
+
+    SET cnt TO -1
+
+    SET flg TO len(all)
+
+    FOR i IN range(0, flg):
+
+        IF record[0] EQUALS all[i][0]:
+
+            SET cnt TO i
+
+            break
+	
+	ENDIF
+
+    ENDLOOP
+
+    SET all[cnt][3] TO str(next_balance)
+
+    with open("customer.txt", "w") as f:
+
+        SET flg TO len(all)
+
+        FOR i IN range(0, flg):
+
+            SET record TO ",".join(all[i])+ "\n"
+
+            f.write(record)
+
+	ENDLOOP
+
+
+#for saving type customer
+
+DEFINE FUNCTION balance_change_saving(record, ans):
+
+    OUTPUT("-" * 80)
+
+    SET all TO []
+
+    with open("customer.txt", "r") as f:
+
+        FOR i IN f:
+
+            SET allist TO i.strip().split(",")
+
+            all.append(allist)
+
+	ENDLOOP
+
+    SET cnt TO -1
+
+    SET flg TO len(all)
+
+    FOR i IN range(0, flg):
+
+        IF record[0] EQUALS all[i][0]:
+
+            SET cnt TO i
+
+            break
+	
+	ENDIF
+
+    ENDLOOP
+
+    SET balance TO float(all[cnt][3])
+
+    IF ans EQUALS 1:
+
+        WHILE True:
+
+            withdraw= float(INPUT("how much do you want to withdraw: "))
+
+            SET next_balance TO balance - withdraw
+
+            IF next_balance >= 100:
+
+                OUTPUT(f"you have withdraw {withdraw}")
+
+                with open("history.txt","a") as fh:
+
+                    SET rec TO "\n" + record[0] + "," + record[2] + "," + str(balance) + ", - " + str(withdraw)  + "," + str(dat.now().date()) + "," + str(dat.now().time().strftime("%H:%M:%S"))
+
+                    fh.write(rec)
+
+                break
+
+            ELSE:
+
+                OUTPUT("insufficient balance to withdraw")
+
+	    ENDIF
+
+	ENDLOOP
+
+    ELSEIF ans EQUALS 2:
+
+        WHILE True:
+
+            deposit= float(INPUT("how much do you want to deposit: "))
+
+            SET next_balance TO balance + deposit
+
+            IF next_balance >= 100:
+
+                OUTPUT(f"you have deposit {deposit}")
+
+                with open("history.txt","a") as fh:
+
+                    SET rec TO "\n" + record[0] + "," + record[2] + "," + str(balance) + ", + " + str(deposit)  + "," + str(dat.now().date()) + "," + str(dat.now().time().strftime("%H:%M:%S"))
+
+                    fh.write(rec)
+
+                break
+
+            ELSE:
+
+                OUTPUT("invalid INPUT")
+
+	    ENDIF
+
+	ENDLOOP
+
+    ENDIF
+
+    SET cnt TO -1
+
+    SET flg TO len(all)
+
+    FOR i IN range(0, flg):
+
+        IF record[0] EQUALS all[i][0]:
+
+            SET cnt TO i
+
+            break
+
+	ENDIF
+
+    ENDLOOP
+
+    SET all[cnt][3] TO str(next_balance)
+
+    with open("customer.txt", "w") as f:
+
+        SET flg TO len(all)
+
+        FOR i IN range(0, flg):
+
+            SET record TO ",".join(all[i])+ "\n"
+
+            f.write(record)
+
+	ENDLOOP
+
+
+
+#for check balance
+
+DEFINE FUNCTION check_balance(record):
+
+    SET reclist TO []
+
+    with open("customer.txt", "r") as f:
+
+        FOR i IN f:
+
+            SET rec TO i.strip().split(",")
+
+            IF record[0] EQUALS rec[0]:
+
+                SET reclist TO rec
+
+	    ENDIF
+	
+	ENDLOOP
+
+    OUTPUT(f"your balance is : {reclist[3]} RM")
+
+
+
+DEFINE FUNCTION acc_report(record):
+
+    SET reclist TO []
+
+    with open("history.txt", "r")as f:
+
+        FOR i IN f:
+
+            SET rec TO i.strip().split(",")
+
+            IF record[0] EQUALS rec[0]:
+
+                reclist.append(rec)
+
+	    ENDIF
+
+	ENDLOOP
+
+    OUTPUT("user id: ".center(15)+"| user name:".center(22)+"| prev balance: ".center(23)+"| balance change: ".center(21)+"| date: ".center(12)+"| time: ".center(30))
+
+    OUTPUT("-" * 120)
+
+    with open("history.txt", "r")as f:
+
+        FOR i IN f:
+
+            SET rec TO i.strip().split(",")
+
+            IF record[0] EQUALS rec[0]:
+
+                OUTPUT(rec[0].center(20)+"|"+rec[1].center(20)+"|"+rec[2].center(20)+"|"+rec[3].center(20)+"|"+rec[4].center(20)+"|"+rec[5].center(20))
+	    
+	    ENDIF
+
+	ENDLOOP
+
+
+#Main Logic:
+
+DEFINE FUNCTION main():
+
+    WHILE True:
+
+        SET record TO login()
+
+        IF record != "no":
+
+            OUTPUT("welcome", record[2], "\U0001F600\U0001F600\U0001F600 \4\4\4")
+
+            OUTPUT(f"login successful at {dat.now().date()} time: {dat.now():%H:%M:%S}")
+
+            IF record[3] EQUALS "1":
+
+                superuser()
+
+            ELSEIF record[3] EQUALS "2":
+
+                admin(record)
+
+            ELSEIF record[3] EQUALS "3":
+
+                customer(record)
+
+	    ENDIF
+
+        ELSE:
+
+            OUTPUT("login failed")
+
+	ENDIF
+
+        TRY:
+
+            OUTPUT("-" * 80)
+
+            SET ans TO INPUT("enter any key to try again\nenter 'q' to exit\nchoice: ")
+
+            IF ans EQUALS "q" or ans EQUALS "Q":
+
+                break
+	
+	    ENDIF
+
+        EXCEPT:
+
+            PASS
+
+
+
+main()

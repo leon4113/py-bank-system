@@ -1,0 +1,6 @@
+superacc,nopass,superuser,1,2021-12-01
+admn0001,nicecar,honda,2,2021-12-08
+admn0002,spaces,spicy,2,2021-12-11
+admn0003,backspace,day,2,2021-12-12
+cust0001,python,conda,3,2021-12-13
+cust0002,zenbook,asus,3,2021-12-13
