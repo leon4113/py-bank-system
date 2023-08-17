@@ -15,11 +15,12 @@ def generate_id(type):
         reclist = record.strip().split(":")
         if type == "admin":
             id = "admn"
-            oldrecord = reclist[0][4:]
+            oldrecord = reclist[0][4:] #get the number only
         elif type == "customer":
             id = "cust"
             oldrecord = reclist[1][4:]
         nextrecord = int(oldrecord) + 1
+        
     if len(str(nextrecord)) == 1:
         newid = "0" * 3 + str(nextrecord)
     if len(str(nextrecord)) == 2:
@@ -28,7 +29,9 @@ def generate_id(type):
         newid = "0" + str(nextrecord)
     if len(str(nextrecord)) == 4:
         newid = str(nextrecord)
+        
     final_id = id + newid
+    
     if type == "admin":
         reclist[0] = final_id
     elif type == "customer":
