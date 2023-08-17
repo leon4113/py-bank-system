@@ -1,5 +1,3 @@
-Certainly! Here's a potential README content based on the provided code:
-
 ---
 
 # Banking System
