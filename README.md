@@ -19,7 +19,7 @@ This is a simple console-based banking system implemented in Python. It provides
 4. Run the following command to execute the banking system:
 
 ```bash
-python leonardo_banking_system.py
+python app.py
 ```
 
 ## Usage
